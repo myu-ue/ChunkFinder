@@ -353,7 +353,7 @@
     <div class="layout">
       <section class="panel coordinates" aria-labelledby="coordinates-title">
         <h2 class="section-title" id="coordinates-title">ブロック座標</h2>
-        <p class="section-note">Minecraftでコピーした座標（X Y Z）をそのまま貼り付けできます。例：112 64 192</p>
+        <p class="section-note">Minecraftでコピーした座標（X Y Z）をそのまま貼り付けできます。小数にも対応しています。例：141.71 65.00 190.91</p>
 
         <div>
           <label for="coordinates">座標（X Y Z）</label>
@@ -391,7 +391,7 @@
           <button class="action" id="copy-coords" type="button">座標をコピー</button>
           <button class="action" id="copy-bounds" type="button">チャンク範囲をコピー</button>
         </div>
-        <p class="footnote">計算式：チャンク座標 = floor(ブロック座標 ÷ 16)。リージョンは 32 × 32 チャンク（512 × 512 ブロック）です。</p>
+        <p class="footnote">チャンク判定では座標の小数部分を切り捨てます。リージョンは 32 × 32 チャンク（512 × 512 ブロック）です。</p>
       </section>
 
       <section class="panel map-panel" aria-labelledby="map-title">
@@ -429,9 +429,11 @@
 
       function parseCoordinates() {
         const values = coordinates.value.trim().split(/\s+/);
-        if (values.length !== 3 || values.some((value) => !/^-?\d+$/.test(value))) return null;
+        if (values.length !== 3 || values.some((value) => !/^-?(?:\d+(?:\.\d*)?|\.\d+)$/.test(value))) return null;
         const parsed = values.map(Number);
-        return parsed.every(Number.isSafeInteger) ? parsed : null;
+        return parsed.every((value) => Number.isFinite(value) && Math.abs(value) <= Number.MAX_SAFE_INTEGER - 16)
+          ? parsed
+          : null;
       }
 
       function showToast(message) {
@@ -459,7 +461,7 @@
               button.classList.add("region-edge");
             }
             button.addEventListener("click", () => {
-              const [, y] = parseCoordinates();
+              const y = coordinates.value.trim().split(/\s+/)[1];
               coordinates.value = `${chunkX * 16} ${y} ${chunkZ * 16}`;
               update();
             });
@@ -472,14 +474,15 @@
       function update() {
         const parsed = parseCoordinates();
         if (parsed === null) {
-          error.textContent = "X Y Z の順に、安全な整数を3つ入力してください（例：112 64 192）。";
+          error.textContent = "X Y Z の順に、安全な数値を3つ入力してください（例：141.71 65.00 190.91）。";
           copyCoords.disabled = true;
           copyBounds.disabled = true;
           map.querySelectorAll("button").forEach((button) => { button.disabled = true; });
           return;
         }
 
-        const [x, y, z] = parsed;
+        const [x, y, z] = parsed.map(Math.floor);
+        const [, height] = parsed;
         error.textContent = "";
         copyCoords.disabled = false;
         copyBounds.disabled = false;
@@ -494,7 +497,7 @@
 
         document.getElementById("chunk-coords").textContent = `${selectedChunkX}, ${selectedChunkZ}`;
         document.getElementById("local-coords").innerHTML = `${localX}, ${localZ} <small>/ 15</small>`;
-        document.getElementById("height-coord").textContent = y;
+        document.getElementById("height-coord").textContent = height;
         document.getElementById("region-coords").textContent = `${regionX}, ${regionZ}`;
         document.getElementById("chunk-bounds").textContent = `${startX}–${startX + 15} / ${startZ}–${startZ + 15}`;
         renderMap();
