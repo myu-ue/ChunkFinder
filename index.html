@@ -427,23 +427,23 @@
         </div>
 
         <section class="corners" aria-labelledby="corners-title">
-          <h3 class="corners-title" id="corners-title">チャンクの四隅（X Y Z）</h3>
+          <h3 class="corners-title" id="corners-title">チャンクの四隅（X Z）</h3>
           <div class="corner-grid">
             <div class="corner">
               <span class="corner-label">北西</span>
-              <strong class="corner-value" id="corner-nw">0 0 0</strong>
+              <strong class="corner-value" id="corner-nw">0 0</strong>
             </div>
             <div class="corner">
               <span class="corner-label">北東</span>
-              <strong class="corner-value" id="corner-ne">15 0 0</strong>
+              <strong class="corner-value" id="corner-ne">15 0</strong>
             </div>
             <div class="corner">
               <span class="corner-label">南西</span>
-              <strong class="corner-value" id="corner-sw">0 0 15</strong>
+              <strong class="corner-value" id="corner-sw">0 15</strong>
             </div>
             <div class="corner">
               <span class="corner-label">南東</span>
-              <strong class="corner-value" id="corner-se">15 0 15</strong>
+              <strong class="corner-value" id="corner-se">15 15</strong>
             </div>
           </div>
         </section>
@@ -543,7 +543,6 @@
         }
 
         const [x, , z] = parsed.map(Math.floor);
-        const [, heightText] = coordinates.value.trim().split(/\s+/);
         const height = parsed[1];
         error.textContent = "";
         copyCoords.disabled = false;
@@ -562,10 +561,10 @@
         document.getElementById("height-coord").textContent = height;
         document.getElementById("region-coords").textContent = `${regionX}, ${regionZ}`;
         document.getElementById("chunk-bounds").textContent = `${startX}–${startX + 15} / ${startZ}–${startZ + 15}`;
-        document.getElementById("corner-nw").textContent = `${startX} ${heightText} ${startZ}`;
-        document.getElementById("corner-ne").textContent = `${startX + 15} ${heightText} ${startZ}`;
-        document.getElementById("corner-sw").textContent = `${startX} ${heightText} ${startZ + 15}`;
-        document.getElementById("corner-se").textContent = `${startX + 15} ${heightText} ${startZ + 15}`;
+        document.getElementById("corner-nw").textContent = `${startX}, ${startZ}`;
+        document.getElementById("corner-ne").textContent = `${startX + 15}, ${startZ}`;
+        document.getElementById("corner-sw").textContent = `${startX}, ${startZ + 15}`;
+        document.getElementById("corner-se").textContent = `${startX + 15}, ${startZ + 15}`;
         renderMap();
       }
 
